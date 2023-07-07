@@ -83,8 +83,10 @@ class FixedValueTransform(nn.Module):
     def forward(self, x):
         return self.value
 
-# class ReshapeTransform(nn.Module):
-#     def __init__(self):
-#         super(ReshapeTransform, self).__init__()
-#     def forward(self, x):
-#         return x[:128,:128]
+class BinaryTransform(nn.Module):
+    def __init__(self, true_value_id):
+        super(BinaryTransform, self).__init__()
+        self.true_value_id = true_value_id
+
+    def forward(self, x):
+        return 1 if x == self.true_value_id else 0

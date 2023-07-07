@@ -1,3 +1,5 @@
-Audio-Classification/
+runs/
 data/
 .ipynb_checkpoints/
+*.pyc
+*.pt
