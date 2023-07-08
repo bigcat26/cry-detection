@@ -25,7 +25,7 @@ def evalute(model, criterion, dataloader):
             total += targets.size(0)
             correct += (predicted == targets).sum().item()
     accuracy = 100 * correct / total
-    loss = loss / len(dataloader)
+    # loss = loss / len(dataloader)
     return loss, accuracy
 
 def train_epoch(model, criterion, optimizer, dataloader, **kwargs):
@@ -84,8 +84,10 @@ def train(model_saver, criterion, lr_scheduler, start_epoch, end_epoch, train_lo
             writer.add_scalar('Loss/train', avg_loss, epoch)
             writer.add_scalar('Loss/val', val_loss, epoch)
             writer.add_scalar('Accuracy/val', val_accuracy, epoch)
+            writer.add_scalar('LR', lr_scheduler.get_last_lr()[0], epoch)
+            writer.flush()
 
-        print(f'Epoch [{epoch+1}/{end_epoch}] LR:{lr_scheduler.get_last_lr()} Loss/train:{epoch_loss:.4f} Loss/val:{val_loss:.4f}% Accuracy/val:{val_accuracy:.2f}%')
+        print(f'Epoch [{epoch+1}/{end_epoch}] LR:{lr_scheduler.get_last_lr()} Loss/train:{epoch_loss:.4f} Loss/val:{val_loss:.4f} Accuracy/val:{val_accuracy:.2f}%')
 
         if early_stopper is not None:
             if early_stopper.early_stop(val_loss):
