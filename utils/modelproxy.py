@@ -2,12 +2,12 @@ import os
 import torch
 import torch.nn as nn
 
-class ModelProxy(nn.Module):   
+class ModelProxy(nn.Module):
     '''
     ModelSaver is a utility class for saving models at specified intervals.
     '''
     def __init__(self, model=None):
-        super(ModelWrapper, self).__init__()
+        super(ModelProxy, self).__init__()
         self.model = model
         self.last_epoch = 1
         self.file_pattern = None
@@ -31,17 +31,39 @@ class ModelProxy(nn.Module):
 
     def load(self, file):
         '''
-        loads the model from the given epoch.
+        laods the model from the given file.
         '''
         state = torch.load(file)
         self.set_epoch(state['epoch'])
         self.model.load_state_dict(state['state_dict'])
         return self
-        
+
+    def load_checkpoint(self):
+        '''
+        loads the model from the last saved epoch.
+        '''
+        file = self.file_pattern.format(epoch=self.last_epoch)
+        if os.path.isfile(file):
+            state = torch.load(file)
+            self.set_epoch(state['epoch'])
+            self.model.load_state_dict(state['state_dict'])
+            return True
+        return False
+
     def set_auto_save(self, milestones, intervals):
         self.milestones = milestones if milestones is not None else []
         self.intervals = intervals if intervals is not None else []
         return self
+    
+    def save_torchscript(self, file, trace_input_shape=None):
+        if self.model is None:
+            raise Exception('model is not set')
+        device = next(self.model.parameters()).device
+        if trace_input_shape is not None:
+            mod = torch.jit.trace(self.model, torch.randn(trace_input_shape).to(device))
+        else:
+            mod = torch.jit.script(self.model)
+        mod.save(file)
 
     def step(self, loss=0.0, val_loss=0.0, val_accuracy=0.0):
         '''
