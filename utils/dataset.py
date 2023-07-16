@@ -1,6 +1,5 @@
 
 def dump_dataset_info(dataset):
-    print('dataset info')
     print(f'records: {len(dataset)}')
 
     # x, y = dataset[0]
